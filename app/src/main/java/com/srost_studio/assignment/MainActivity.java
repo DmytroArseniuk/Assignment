@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Subscribe
     public void accept(VenuesFetchedEvent event) {
-        Log.d("RESTOURANT COUNTER", "" + event.getVenues().size());
+        Log.d("RESTAURANT COUNTER", "" + event.getVenues().size());
     }
 
     @Override
