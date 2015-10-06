@@ -3,6 +3,7 @@ package com.srost_studio.assignment;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,6 +13,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
+import com.srost_studio.assignment.fragments.VenueList;
 import com.srost_studio.assignment.util.EventBus;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -42,8 +44,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         centerOfNY.setLatitude(40.7406699);
         centerOfNY.setLongitude(-73.9886812);
 
+
         googleApiClient.connect();
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container,
+                        VenueList.newInstance(),
+                        VenueList.FRAGMENT_NAME)
+                .commit();
 
     }
 

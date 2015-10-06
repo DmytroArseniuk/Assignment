@@ -5,4 +5,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="list_row_min_height">56dp</dimen>
     <dimen name="list_row_side_padding">16dp</dimen>
+    <dimen name="min_toolbar_height">56dp</dimen>
 </resources>
