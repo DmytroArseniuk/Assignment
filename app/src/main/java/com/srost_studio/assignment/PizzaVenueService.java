@@ -1,11 +1,12 @@
 package com.srost_studio.assignment;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.srost_studio.assignment.events.VenuesFetchedEvent;
+import com.srost_studio.assignment.util.EventBus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +84,7 @@ public class PizzaVenueService extends IntentService {
             Log.d("ERROR", exp.toString());
         }
 
-        Log.d("RESULT", "OKAY");
+        EventBus.getInstance().post(new VenuesFetchedEvent(venues));
     }
 
 
