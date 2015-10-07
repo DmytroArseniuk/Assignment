@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.srost_studio.assignment.db.DatabaseManager;
+import com.srost_studio.assignment.db.repository.VenueRepository;
 import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.util.EventBus;
@@ -109,8 +111,11 @@ public class PizzaVenueService extends IntentService {
 
         } catch (Exception exp) {
             EventBus.getInstance().post(new VenuesFetchFailedEvent());
+            return;
         }
-
+        DatabaseManager manager = new DatabaseManager(getApplicationContext());
+        VenueRepository repository = new VenueRepository(manager);
+        repository.saveAll(venues);
         EventBus.getInstance().post(new VenuesFetchedEvent(venues));
     }
 

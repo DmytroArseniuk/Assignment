@@ -1,6 +1,8 @@
 package br.com.condesales.models;
 
-public class Statistics {
+import java.io.Serializable;
+
+public class Statistics implements Serializable{
 
 	public int getCheckinsCount() {
 		return checkinsCount;
