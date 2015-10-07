@@ -13,13 +13,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
-import com.srost_studio.assignment.fragments.VenueList;
+import com.srost_studio.assignment.fragments.VenueListFragment;
 import com.srost_studio.assignment.util.EventBus;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient googleApiClient;
-
 
 
     @Override
@@ -50,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container,
-                        VenueList.newInstance(),
-                        VenueList.FRAGMENT_NAME)
+                        VenueListFragment.newInstance(),
+                        VenueListFragment.FRAGMENT_NAME)
                 .commit();
 
     }
@@ -66,10 +65,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 googleApiClient);
         if (lastLocation != null) {
-            final Intent intent = new Intent(MainActivity.this, PizzaVenueService.class);
-            intent.putExtra(PizzaVenueService.LATITUDE_TAG, lastLocation.getLatitude());
-            intent.putExtra(PizzaVenueService.LONGITUDE_TAG, lastLocation.getLongitude());
-            startService(intent);
+            startService(PizzaVenueService.getIntent(MainActivity.this,
+                    lastLocation.getLatitude(), lastLocation.getLongitude()));
             Log.d("LAT ", String.valueOf(lastLocation.getLatitude()));
             Log.d("LON ", String.valueOf(lastLocation.getLongitude()));
         }

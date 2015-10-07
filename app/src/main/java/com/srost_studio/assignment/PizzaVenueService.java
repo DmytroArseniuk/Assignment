@@ -1,6 +1,7 @@
 package com.srost_studio.assignment;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -33,6 +34,23 @@ public class PizzaVenueService extends IntentService {
     public static final String OFFSET_TAG = "offset_tag";
     private final String query = "pizza";
     private final int queryLimit = 10;
+
+    public static Intent getIntent(Context context, double latitude, double longitude) {
+        final Intent intent = new Intent(context, PizzaVenueService.class);
+        intent.putExtra(PizzaVenueService.LATITUDE_TAG, latitude);
+        intent.putExtra(PizzaVenueService.LONGITUDE_TAG, longitude);
+
+        return intent;
+    }
+
+    public static Intent getIntent(Context context, double latitude, double longitude, int offset) {
+        final Intent intent = new Intent(context, PizzaVenueService.class);
+        intent.putExtra(PizzaVenueService.LATITUDE_TAG, latitude);
+        intent.putExtra(PizzaVenueService.LONGITUDE_TAG, longitude);
+        intent.putExtra(PizzaVenueService.OFFSET_TAG, offset);
+
+        return intent;
+    }
 
 
     public PizzaVenueService() {
