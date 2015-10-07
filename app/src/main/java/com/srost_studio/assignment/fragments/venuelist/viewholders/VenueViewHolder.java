@@ -1,12 +1,12 @@
-package com.srost_studio.assignment.fragments;
+package com.srost_studio.assignment.fragments.venuelist.viewholders;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
 import com.srost_studio.assignment.R;
+import com.srost_studio.assignment.fragments.venuelist.elements.ViewElements;
 
-public class VenueViewHolder extends RecyclerView.ViewHolder {
+public class VenueViewHolder extends ViewHolder {
 
     private final TextView name;
     private final TextView distance;
@@ -18,6 +18,11 @@ public class VenueViewHolder extends RecyclerView.ViewHolder {
         distance = (TextView) itemView.findViewById(R.id.venue_distance);
     }
 
+    @Override
+    public int getViewType() {
+        return ViewElements.ELEMENT.ordinal();
+    }
+
     public TextView getName() {
         return name;
     }
@@ -25,4 +30,6 @@ public class VenueViewHolder extends RecyclerView.ViewHolder {
     public TextView getDistance() {
         return distance;
     }
+
+
 }

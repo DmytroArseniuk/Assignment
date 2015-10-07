@@ -1,4 +1,4 @@
-package com.srost_studio.assignment.fragments;
+package com.srost_studio.assignment.fragments.venuelist;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,13 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
+import com.srost_studio.assignment.MainActivity;
 import com.srost_studio.assignment.PizzaVenueService;
 import com.srost_studio.assignment.R;
+import com.srost_studio.assignment.events.LocationUpdatedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.util.EventBus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import br.com.condesales.models.Venue;
 
@@ -28,10 +29,18 @@ public class VenueListFragment extends Fragment {
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
     private VenueAdapter adapter;
+    private boolean venueFetching;
+    private MainActivity activity;
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        activity = (MainActivity) getActivity();
     }
 
     @Override
@@ -53,19 +62,50 @@ public class VenueListFragment extends Fragment {
         recyclerView = (RecyclerView) contextView.findViewById(R.id.venue_list);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        recyclerView.setOnScrollListener(onScrollListener);
     }
 
 
     @Subscribe
     public void accept(VenuesFetchedEvent event) {
+        if(event.getVenues().isEmpty()) {
+            adapter.hideProgressBar();
+            adapter.notifyDataSetChanged();
+            return;
+        }
         adapter.appendVenues(event.getVenues());
         adapter.notifyDataSetChanged();
+        venueFetching = false;
     }
 
+    @Subscribe
+    public void accept(LocationUpdatedEvent event) {
+        if(adapter.getItemCount() == 0) {
+            final Intent intent = PizzaVenueService.getIntent(activity, activity.getLastLatitude(),
+                    activity.getLastLongitude(), adapter.getItemCount());
+            activity.startService(intent);
+        }
+    }
 
     @Override
     public void onPause() {
         super.onPause();
         EventBus.getInstance().unregister(this);
     }
+
+    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            final int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+            if(adapter.getItemCount()-1 == lastVisibleItemPosition
+                    && !venueFetching
+                    && adapter.progressbarShown()) {
+                final Intent intent = PizzaVenueService.getIntent(activity, activity.getLastLatitude(),
+                        activity.getLastLongitude(), adapter.getItemCount());
+                activity.startService(intent);
+                venueFetching = true;
+            }
+        }
+    };
 }

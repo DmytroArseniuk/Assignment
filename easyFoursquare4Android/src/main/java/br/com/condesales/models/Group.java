@@ -6,6 +6,10 @@ public class Group implements Serializable {
 
 	private static final long serialVersionUID = 3667889421203126061L;
 
-	public Venue[] items;
+	public GroupItem[] items;
+
+    public class GroupItem {
+        public Venue venue;
+    }
 	
 }

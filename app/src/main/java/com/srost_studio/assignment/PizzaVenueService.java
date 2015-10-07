@@ -21,7 +21,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
+import br.com.condesales.models.Group;
 import br.com.condesales.models.Venue;
 
 import static br.com.condesales.constants.FoursquareConstants.API_DATE_VERSION;
@@ -68,12 +71,14 @@ public class PizzaVenueService extends IntentService {
         final double longitude = intent.getDoubleExtra(LONGITUDE_TAG, 0);
         final int offset = intent.getIntExtra(OFFSET_TAG, 0);
 
-        ArrayList<Venue> venues = new ArrayList<Venue>();
+        ArrayList<Venue> venues = new ArrayList<>();
+        ArrayList<Group> groups = new ArrayList<>();
+
 
         try {
             final String apiDateVersion = API_DATE_VERSION;
             StringBuilder uriBuilder = new StringBuilder();
-            uriBuilder.append("https://api.foursquare.com/v2/venues/search")
+            uriBuilder.append("https://api.foursquare.com/v2/venues/explore")
                     .append("?v=").append(apiDateVersion)
                     .append("&ll=").append(latitude).append(",").append(longitude)
                     .append("&query=").append(query)
@@ -88,11 +93,16 @@ public class PizzaVenueService extends IntentService {
             if (returnCode == 200) {
                 Gson gson = new Gson();
                 JSONArray json = venuesJson.getJSONObject("response")
-                        .getJSONArray("venues");
+                        .getJSONArray("groups");
                 for (int i = 0; i < json.length(); i++) {
-                    Venue venue = gson.fromJson(json.getJSONObject(i)
-                            .toString(), Venue.class);
-                    venues.add(venue);
+                    Group group = gson.fromJson(json.getJSONObject(i)
+                            .toString(), Group.class);
+                    groups.add(group);
+                }
+                for(Group group : groups) {
+                    for(Group.GroupItem item : group.items) {
+                        venues.add(item.venue);
+                    }
                 }
             } else {
                 Log.d("ERROR", venuesJson.getJSONObject("meta").getString("errorDetail"));

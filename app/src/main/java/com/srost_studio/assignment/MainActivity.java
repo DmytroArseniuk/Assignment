@@ -1,6 +1,5 @@
 package com.srost_studio.assignment;
 
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -11,14 +10,15 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.squareup.otto.Subscribe;
-import com.srost_studio.assignment.events.VenuesFetchedEvent;
-import com.srost_studio.assignment.fragments.VenueListFragment;
+import com.srost_studio.assignment.events.LocationUpdatedEvent;
+import com.srost_studio.assignment.fragments.venuelist.VenueListFragment;
 import com.srost_studio.assignment.util.EventBus;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient googleApiClient;
+    private double lastLatitude = 0;
+    private double lastLongitude = 0;
 
 
     @Override
@@ -55,21 +55,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
-    @Subscribe
-    public void accept(VenuesFetchedEvent event) {
-        Log.d("RESTAURANT COUNTER", "" + event.getVenues().size());
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
-        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+        final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 googleApiClient);
         if (lastLocation != null) {
-            startService(PizzaVenueService.getIntent(MainActivity.this,
-                    lastLocation.getLatitude(), lastLocation.getLongitude()));
-            Log.d("LAT ", String.valueOf(lastLocation.getLatitude()));
-            Log.d("LON ", String.valueOf(lastLocation.getLongitude()));
+            lastLatitude = lastLocation.getLatitude();
+            lastLongitude = lastLocation.getLongitude();
         }
+        EventBus.getInstance().post(new LocationUpdatedEvent());
     }
 
     @Override
@@ -86,5 +80,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.d("onConnectionFailed", connectionResult.toString());
+    }
+
+    public double getLastLatitude() {
+        return lastLatitude;
+    }
+
+    public double getLastLongitude() {
+        return lastLongitude;
     }
 }
