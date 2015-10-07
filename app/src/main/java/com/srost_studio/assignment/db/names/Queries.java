@@ -7,8 +7,8 @@ public interface Queries {
         String VENUE_CREATE_COMMAND = "CREATE TABLE " +
                 Tables.VENUES + "(" +
                 Columns.Venue.ID + " STRING PRIMARY KEY UNIQUE, " +
-                Columns.Venue.BLOB + " BLOB NOT NULL, " +
-                Columns.Venue.DISTANCE + " REAL NOT NULL);";
+                Columns.Venue.DISTANCE + " REAL NOT NULL, "+
+                Columns.Venue.BLOB + " BLOB NOT NULL); ";
 
     }
 }

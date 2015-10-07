@@ -10,7 +10,7 @@ import com.srost_studio.assignment.db.names.Tables;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     public static final String[] CREATE_QUERIES = new String[]{
             Queries.Create.VENUE_CREATE_COMMAND

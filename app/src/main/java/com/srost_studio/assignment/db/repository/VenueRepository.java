@@ -77,10 +77,10 @@ public class VenueRepository {
         return venue;
     }
 
-    public List<Venue> findAll() {
+    public ArrayList<Venue> findAll() {
         Cursor cursor = null;
         try {
-            List<Venue> venues = new ArrayList<>();
+            ArrayList<Venue> venues = new ArrayList<>();
             cursor = databaseManager.getDatabase()
                     .rawQuery("SELECT * FROM " + Tables.VENUES.name()
                             + " ORDER BY " + Columns.Venue.DISTANCE.name()
