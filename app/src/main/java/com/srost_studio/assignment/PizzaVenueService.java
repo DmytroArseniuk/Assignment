@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.util.EventBus;
 
@@ -21,8 +22,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 import br.com.condesales.models.Group;
 import br.com.condesales.models.Venue;
@@ -109,7 +108,7 @@ public class PizzaVenueService extends IntentService {
             }
 
         } catch (Exception exp) {
-            Log.d("ERROR", exp.toString());
+            EventBus.getInstance().post(new VenuesFetchFailedEvent());
         }
 
         EventBus.getInstance().post(new VenuesFetchedEvent(venues));

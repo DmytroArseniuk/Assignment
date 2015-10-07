@@ -16,6 +16,7 @@ import com.srost_studio.assignment.MainActivity;
 import com.srost_studio.assignment.PizzaVenueService;
 import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
+import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.util.EventBus;
 
@@ -85,6 +86,11 @@ public class VenueListFragment extends Fragment {
                     activity.getLastLongitude(), adapter.getItemCount());
             activity.startService(intent);
         }
+    }
+
+    @Subscribe
+    public void accept(VenuesFetchFailedEvent event) {
+        //todo Get venues from DB
     }
 
     @Override
