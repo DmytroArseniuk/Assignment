@@ -102,18 +102,8 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(LocationUpdatedEvent event) {
-        if (!isNetworkAvailable()) {
-            ((MainApplication) getActivity().getApplication())
-                    .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
-                @Override
-                public void onPostExecute(ArrayList<Venue> venues) {
-                    adapter.appendVenues(venues);
-                    adapter.notifyDataSetChanged();
-                }
-            });
-        }
-        if (adapter.isFetching() && !venueFetching) {
-            PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
+        if(adapter.isEmpty()){
+            fetchVenues();
         }
     }
 
@@ -160,6 +150,10 @@ public class VenueListFragment extends Fragment {
         adapter.clear();
         adapter.showProgressBar();
         adapter.notifyDataSetChanged();
+        fetchVenues();
+    }
+
+    private void fetchVenues(){
         if (!isNetworkAvailable()) {
             ((MainApplication) getActivity().getApplication())
                     .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
@@ -170,7 +164,8 @@ public class VenueListFragment extends Fragment {
                 }
             });
         } else {
-            PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
+            final int adapterSize = adapter.isFetching() ? adapter.getItemCount() : adapter.getItemCount() -1;
+            PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), adapterSize);
         }
     }
 
