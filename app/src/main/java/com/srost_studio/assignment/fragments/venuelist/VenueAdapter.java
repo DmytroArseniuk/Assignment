@@ -5,35 +5,28 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.srost_studio.assignment.R;
-import com.srost_studio.assignment.fragments.venuelist.elements.ProgressBarElement;
-import com.srost_studio.assignment.fragments.venuelist.elements.VenueElement;
-import com.srost_studio.assignment.fragments.venuelist.elements.VenueListElement;
-import com.srost_studio.assignment.fragments.venuelist.elements.ViewElements;
+import com.srost_studio.assignment.fragments.venuelist.viewholders.ElemenType;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ProgressBarViewHolder;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.VenueViewHolder;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.condesales.models.Venue;
 
-import static com.srost_studio.assignment.fragments.venuelist.elements.ViewElements.PROGRESS_BAR;
-
 public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-    private final ProgressBarElement progressbar = new ProgressBarElement();
-
-    private List<VenueListElement> elements;
+    private List<Venue> elements;
+    private boolean fetching;
 
     public VenueAdapter(List<Venue> elements) {
-        this.elements = convertVenues(elements);
+        this.elements = elements;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        switch (ViewElements.values()[viewType]) {
+        switch (ElemenType.values()[viewType]) {
             case ELEMENT:
                 return new VenueViewHolder(inflater.inflate(R.layout.list_item_venue, parent, false));
             case PROGRESS_BAR:
@@ -44,44 +37,45 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        elements.get(position).bind(holder);
+        if(holder.getViewType() == ElemenType.ELEMENT.ordinal()){
+            ((VenueViewHolder)holder).bind(elements.get(position));
+        }
     }
 
-    public List<VenueListElement> convertVenues(List<Venue> venues) {
-        ArrayList<VenueListElement> elements = new ArrayList<>();
-        for (Venue venue : venues) {
-            elements.add(new VenueElement(venue));
-        }
-        return elements;
-    }
 
     @Override
     public int getItemCount() {
+        if (fetching) {
+            return elements.size() + 1;
+        }
         return elements.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return elements.get(position).getElementType();
+        if(position == elements.size()){
+            return ElemenType.PROGRESS_BAR.ordinal();
+        }
+        return ElemenType.ELEMENT.ordinal();
     }
 
     public void hideProgressBar() {
-        elements.remove(progressbar);
+        fetching = false;
     }
 
-    public void showProgressBar() {
-        elements.add(progressbar);
+    public void showProgressBar()    {
+        fetching = true;
     }
 
-    public boolean progressbarShown(){
-        return elements.contains(progressbar);
+    public boolean isFetching() {
+        return fetching;
     }
 
     public void appendVenues(List<Venue> additionalVenues) {
-        if(progressbarShown()) {
+        if (fetching) {
             hideProgressBar();
         }
-        elements.addAll(convertVenues(additionalVenues));
+        elements.addAll(additionalVenues);
         showProgressBar();
     }
 }

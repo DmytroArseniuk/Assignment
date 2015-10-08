@@ -4,7 +4,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.srost_studio.assignment.R;
-import com.srost_studio.assignment.fragments.venuelist.elements.ViewElements;
+
+import br.com.condesales.models.Venue;
 
 public class VenueViewHolder extends ViewHolder {
 
@@ -20,7 +21,12 @@ public class VenueViewHolder extends ViewHolder {
 
     @Override
     public int getViewType() {
-        return ViewElements.ELEMENT.ordinal();
+        return ElemenType.ELEMENT.ordinal();
+    }
+
+    public void bind(Venue venue) {
+        name.setText(venue.getName());
+        distance.setText(String.valueOf(venue.getLocation().getDistance() / 1000.0f));
     }
 
     public TextView getName() {

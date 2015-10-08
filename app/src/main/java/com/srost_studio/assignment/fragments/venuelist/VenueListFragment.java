@@ -29,6 +29,7 @@ public class VenueListFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private VenueAdapter adapter;
     private boolean venueFetching;
+    private boolean possibleToFetchMore;
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
@@ -38,6 +39,7 @@ public class VenueListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        possibleToFetchMore = true;
     }
 
     @Override
@@ -68,6 +70,7 @@ public class VenueListFragment extends Fragment {
         if (event.getVenues().isEmpty()) {
             adapter.hideProgressBar();
             adapter.notifyDataSetChanged();
+            possibleToFetchMore = false;
             return;
         }
         adapter.appendVenues(event.getVenues());
@@ -98,8 +101,7 @@ public class VenueListFragment extends Fragment {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             final int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-            if (adapter.getItemCount() - 1 == lastVisibleItemPosition
-                    && !venueFetching && adapter.progressbarShown()) {
+            if (adapter.getItemCount() - 1 == lastVisibleItemPosition && !venueFetching && possibleToFetchMore) {
                 PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(),
                         getLastLongitude(), adapter.getItemCount());
                 venueFetching = true;
