@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Assignment</string>
     <string name="action_settings">Settings</string>
+    <string name="current_location">Current location</string>
+    <string name="ny_center">NY center</string>
+    <string name="my">MY</string>
+    <string name="ny">NY</string>
 </resources>

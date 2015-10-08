@@ -39,10 +39,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onResume() {
         super.onResume();
         EventBus.getInstance().register(this);
-        final Location centerOfNY = new Location("");
-        centerOfNY.setLatitude(40.7406699);
-        centerOfNY.setLongitude(-73.9886812);
-
 
         googleApiClient.connect();
 

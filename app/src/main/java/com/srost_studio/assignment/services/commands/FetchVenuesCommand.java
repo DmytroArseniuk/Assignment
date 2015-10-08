@@ -54,7 +54,7 @@ public class FetchVenuesCommand implements Command {
             }
         }
 
-        application.getVenueRepository().saveAll(venues);
+        application.getVenueService().saveAll(venues);
 
         EventBus.getInstance().post(new VenuesFetchedEvent(venues));
     }

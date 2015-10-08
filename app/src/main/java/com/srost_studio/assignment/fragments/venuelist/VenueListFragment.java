@@ -1,6 +1,7 @@
 package com.srost_studio.assignment.fragments.venuelist;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -15,11 +16,12 @@ import android.view.ViewGroup;
 import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.MainActivity;
 import com.srost_studio.assignment.MainApplication;
-import com.srost_studio.assignment.services.PizzaVenueService;
 import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
 import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
+import com.srost_studio.assignment.services.PizzaVenueService;
+import com.srost_studio.assignment.services.VenueService;
 import com.srost_studio.assignment.util.EventBus;
 
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ public class VenueListFragment extends Fragment {
     private VenueAdapter adapter;
     private boolean venueFetching;
     private boolean possibleToFetchMore;
+    private final double nearbyVenueRadius = 40_000.0;
+    private Location centerOfNY;
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
@@ -44,6 +48,9 @@ public class VenueListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         possibleToFetchMore = true;
+        centerOfNY = new Location("");
+        centerOfNY.setLatitude(40.7406699);
+        centerOfNY.setLongitude(-73.9886812);
     }
 
     @Override
@@ -58,10 +65,6 @@ public class VenueListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getInstance().register(this);
-        if(!isNetworkAvailable()) {
-            adapter.appendVenues(((MainApplication) getActivity().getApplication())
-                    .getVenueRepository().findAll());
-        }
     }
 
     private void initView(View contextView) {
@@ -88,6 +91,16 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(LocationUpdatedEvent event) {
+        if(!isNetworkAvailable()){
+            ((MainApplication) getActivity().getApplication())
+                    .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
+                @Override
+                public void onPostExecute(ArrayList<Venue> venues) {
+                    adapter.appendVenues(venues);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
         if (adapter.getItemCount() == 0) {
             PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
         }

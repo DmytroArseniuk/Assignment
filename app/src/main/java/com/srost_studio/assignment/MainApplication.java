@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.srost_studio.assignment.db.DatabaseManager;
 import com.srost_studio.assignment.db.repository.VenueRepository;
+import com.srost_studio.assignment.services.VenueService;
 import com.srost_studio.assignment.services.backend.FoursquareBackendService;
 
 import retrofit.RestAdapter;
@@ -16,7 +17,7 @@ public class MainApplication extends Application {
 
 
     private DatabaseManager databaseManager;
-    private VenueRepository venueRepository;
+    private VenueService venueService;
     private FoursquareBackendService foursquareBackendService;
     private final String baseURL = "https://api.foursquare.com/v2";
 
@@ -25,7 +26,9 @@ public class MainApplication extends Application {
         super.onCreate();
 
         databaseManager = new DatabaseManager(this);
-        venueRepository = new VenueRepository(databaseManager);
+
+        final VenueRepository venueRepository = new VenueRepository(databaseManager);
+        venueService = new VenueService(venueRepository);
 
 
         Gson gson = new GsonBuilder().create();
@@ -39,11 +42,18 @@ public class MainApplication extends Application {
         foursquareBackendService = restAdapter.create(FoursquareBackendService.class);
     }
 
-    public VenueRepository getVenueRepository() {
-        return venueRepository;
+    public VenueService getVenueService() {
+        return venueService;
     }
 
     public FoursquareBackendService getFoursquareBackendService() {
         return foursquareBackendService;
+    }
+
+    @Override
+    public void onTerminate() {
+        databaseManager.getDatabase().close();
+        super.onTerminate();
+
     }
 }
