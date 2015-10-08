@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".PizzaVenueService"
+            android:name=".services.PizzaVenueService"
             android:enabled="true" />
     </application>
 

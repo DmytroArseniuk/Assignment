@@ -1,13 +1,9 @@
-package com.srost_studio.assignment;
+package com.srost_studio.assignment.services.commands;
 
-import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.srost_studio.assignment.db.DatabaseManager;
-import com.srost_studio.assignment.db.repository.VenueRepository;
 import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.util.EventBus;
@@ -32,42 +28,19 @@ import static br.com.condesales.constants.FoursquareConstants.API_DATE_VERSION;
 import static br.com.condesales.constants.FoursquareConstants.CLIENT_ID;
 import static br.com.condesales.constants.FoursquareConstants.CLIENT_SECRET;
 
-public class PizzaVenueService extends IntentService {
+public class FetchVenuesCommand implements Command {
+
+    public static final String FETCH_VENUE_COMMAND = "fetch_venue_command";
     public static final String LATITUDE_TAG = "latitude_tag";
     public static final String LONGITUDE_TAG = "longitude_tag";
     public static final String OFFSET_TAG = "offset_tag";
+
     private final String query = "pizza";
     private final int queryLimit = 10;
 
-    public static Intent getIntent(Context context, double latitude, double longitude) {
-        final Intent intent = new Intent(context, PizzaVenueService.class);
-        intent.putExtra(PizzaVenueService.LATITUDE_TAG, latitude);
-        intent.putExtra(PizzaVenueService.LONGITUDE_TAG, longitude);
-
-        return intent;
-    }
-
-    public static Intent getIntent(Context context, double latitude, double longitude, int offset) {
-        final Intent intent = new Intent(context, PizzaVenueService.class);
-        intent.putExtra(PizzaVenueService.LATITUDE_TAG, latitude);
-        intent.putExtra(PizzaVenueService.LONGITUDE_TAG, longitude);
-        intent.putExtra(PizzaVenueService.OFFSET_TAG, offset);
-
-        return intent;
-    }
-
-
-    public PizzaVenueService() {
-        super("VenueService");
-    }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
+    public void execute(Intent intent) {
         final double latitude = intent.getDoubleExtra(LATITUDE_TAG, 0);
         final double longitude = intent.getDoubleExtra(LONGITUDE_TAG, 0);
         final int offset = intent.getIntExtra(OFFSET_TAG, 0);
@@ -113,9 +86,8 @@ public class PizzaVenueService extends IntentService {
             EventBus.getInstance().post(new VenuesFetchFailedEvent());
             return;
         }
-        DatabaseManager manager = new DatabaseManager(getApplicationContext());
-        VenueRepository repository = new VenueRepository(manager);
-        repository.saveAll(venues);
+
+
         EventBus.getInstance().post(new VenuesFetchedEvent(venues));
     }
 

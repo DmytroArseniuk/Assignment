@@ -1,19 +1,17 @@
 package com.srost_studio.assignment.fragments.venuelist;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.MainActivity;
-import com.srost_studio.assignment.PizzaVenueService;
+import com.srost_studio.assignment.services.PizzaVenueService;
 import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
 import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
@@ -31,7 +29,6 @@ public class VenueListFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private VenueAdapter adapter;
     private boolean venueFetching;
-    private MainActivity activity;
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
@@ -41,7 +38,6 @@ public class VenueListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activity = (MainActivity) getActivity();
     }
 
     @Override
@@ -69,7 +65,7 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(VenuesFetchedEvent event) {
-        if(event.getVenues().isEmpty()) {
+        if (event.getVenues().isEmpty()) {
             adapter.hideProgressBar();
             adapter.notifyDataSetChanged();
             return;
@@ -81,10 +77,8 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(LocationUpdatedEvent event) {
-        if(adapter.getItemCount() == 0) {
-            final Intent intent = PizzaVenueService.getIntent(activity, activity.getLastLatitude(),
-                    activity.getLastLongitude(), adapter.getItemCount());
-            activity.startService(intent);
+        if (adapter.getItemCount() == 0) {
+            PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
         }
     }
 
@@ -104,14 +98,21 @@ public class VenueListFragment extends Fragment {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             final int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-            if(adapter.getItemCount()-1 == lastVisibleItemPosition
-                    && !venueFetching
-                    && adapter.progressbarShown()) {
-                final Intent intent = PizzaVenueService.getIntent(activity, activity.getLastLatitude(),
-                        activity.getLastLongitude(), adapter.getItemCount());
-                activity.startService(intent);
+            if (adapter.getItemCount() - 1 == lastVisibleItemPosition
+                    && !venueFetching && adapter.progressbarShown()) {
+                PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(),
+                        getLastLongitude(), adapter.getItemCount());
                 venueFetching = true;
             }
         }
     };
+
+    private double getLastLatitude() {
+        return ((MainActivity) getActivity()).getLastLatitude();
+    }
+
+    private double getLastLongitude() {
+        return ((MainActivity) getActivity()).getLastLongitude();
+    }
+
 }
