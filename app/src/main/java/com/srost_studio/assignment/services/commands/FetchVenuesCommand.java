@@ -1,8 +1,10 @@
 package com.srost_studio.assignment.services.commands;
 
 import android.content.Intent;
+import android.util.Log;
 
 import com.srost_studio.assignment.MainApplication;
+import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
 import com.srost_studio.assignment.services.backend.ExploreResponsePOJO;
 import com.srost_studio.assignment.util.EventBus;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 
 import br.com.condesales.models.Group;
 import br.com.condesales.models.Venue;
+import retrofit.RetrofitError;
 
 import static br.com.condesales.constants.FoursquareConstants.API_DATE_VERSION;
 import static br.com.condesales.constants.FoursquareConstants.CLIENT_ID;
@@ -33,16 +36,25 @@ public class FetchVenuesCommand implements Command {
         final double longitude = intent.getDoubleExtra(LONGITUDE_TAG, 0);
         final int offset = intent.getIntExtra(OFFSET_TAG, 0);
 
-        final ExploreResponsePOJO response = application.getFoursquareBackendService().findVenues(API_DATE_VERSION, latitude + "," + longitude,
-                query, queryLimit, offset, CLIENT_ID, CLIENT_SECRET);
-
+        ExploreResponsePOJO response = null;
+        try {
+            response = application.getFoursquareBackendService().findVenues(API_DATE_VERSION, latitude + "," + longitude,
+                    query, queryLimit, offset, CLIENT_ID, CLIENT_SECRET);
+        } catch (RetrofitError error) {
+            Log.d("ERROR", error.toString());
+            EventBus.getInstance().post(new VenuesFetchFailedEvent());
+            return;
+        }
         ArrayList<Venue> venues = new ArrayList<>();
+
 
         for (Group group : response.response.groups) {
             for (Group.GroupItem item : group.items) {
                 venues.add(item.venue);
             }
         }
+
+        application.getVenueRepository().saveAll(venues);
 
         EventBus.getInstance().post(new VenuesFetchedEvent(venues));
     }

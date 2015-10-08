@@ -76,6 +76,5 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
             hideProgressBar();
         }
         elements.addAll(additionalVenues);
-        showProgressBar();
     }
 }

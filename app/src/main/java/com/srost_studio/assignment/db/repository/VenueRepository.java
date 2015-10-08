@@ -98,7 +98,7 @@ public class VenueRepository {
         }
     }
 
-    public Venue findOne(String id) {
+    public Venue findVenue(String id) {
         Cursor cursor = null;
         try {
             Venue venue = null;

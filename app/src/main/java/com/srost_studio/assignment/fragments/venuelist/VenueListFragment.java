@@ -1,5 +1,8 @@
 package com.srost_studio.assignment.fragments.venuelist;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.MainActivity;
+import com.srost_studio.assignment.MainApplication;
 import com.srost_studio.assignment.services.PizzaVenueService;
 import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
@@ -54,6 +58,10 @@ public class VenueListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getInstance().register(this);
+        if(!isNetworkAvailable()) {
+            adapter.appendVenues(((MainApplication) getActivity().getApplication())
+                    .getVenueRepository().findAll());
+        }
     }
 
     private void initView(View contextView) {
@@ -87,7 +95,8 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(VenuesFetchFailedEvent event) {
-        //todo Get venues from DB
+        venueFetching = false;
+        adapter.hideProgressBar();
     }
 
     @Override
@@ -101,10 +110,13 @@ public class VenueListFragment extends Fragment {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             final int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-            if (adapter.getItemCount() - 1 == lastVisibleItemPosition && !venueFetching && possibleToFetchMore) {
+            if (isNetworkAvailable() && adapter.getItemCount() - 1 == lastVisibleItemPosition
+                    && !venueFetching && possibleToFetchMore) {
                 PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(),
                         getLastLongitude(), adapter.getItemCount());
                 venueFetching = true;
+                adapter.showProgressBar();
+                adapter.notifyDataSetChanged();
             }
         }
     };
@@ -115,6 +127,13 @@ public class VenueListFragment extends Fragment {
 
     private double getLastLongitude() {
         return ((MainActivity) getActivity()).getLastLongitude();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }
