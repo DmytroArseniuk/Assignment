@@ -59,6 +59,10 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
         return ElemenType.ELEMENT.ordinal();
     }
 
+    public void clear() {
+        elements.clear();
+    }
+
     public void hideProgressBar() {
         fetching = false;
     }

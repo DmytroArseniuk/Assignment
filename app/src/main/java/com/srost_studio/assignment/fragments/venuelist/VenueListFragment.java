@@ -9,8 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +31,9 @@ import java.util.ArrayList;
 
 import br.com.condesales.models.Venue;
 
+import static com.srost_studio.assignment.fragments.venuelist.VenueListFragment.SelectedLocation.CENTER_OF_NY;
+import static com.srost_studio.assignment.fragments.venuelist.VenueListFragment.SelectedLocation.MY_LOCATION;
+
 public class VenueListFragment extends Fragment {
 
     public static final String FRAGMENT_NAME = VenueListFragment.class.getName();
@@ -43,7 +44,8 @@ public class VenueListFragment extends Fragment {
     private boolean possibleToFetchMore;
     private final double nearbyVenueRadius = 40_000.0;
     private Location centerOfNY;
-    private Toolbar toolbar;
+    private SelectedLocation selectedLocation = MY_LOCATION;
+
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
@@ -63,7 +65,8 @@ public class VenueListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_venues, container, false);
         adapter = new VenueAdapter(new ArrayList<Venue>());
-        toolbar = (Toolbar)container.findViewById(R.id.toolbar);
+        adapter.showProgressBar();
+        adapter.notifyDataSetChanged();
         setHasOptionsMenu(true);
         initView(v);
         return v;
@@ -86,6 +89,7 @@ public class VenueListFragment extends Fragment {
 
     @Subscribe
     public void accept(VenuesFetchedEvent event) {
+        venueFetching = false;
         if (event.getVenues().isEmpty()) {
             adapter.hideProgressBar();
             adapter.notifyDataSetChanged();
@@ -94,12 +98,11 @@ public class VenueListFragment extends Fragment {
         }
         adapter.appendVenues(event.getVenues());
         adapter.notifyDataSetChanged();
-        venueFetching = false;
     }
 
     @Subscribe
     public void accept(LocationUpdatedEvent event) {
-        if(!isNetworkAvailable()){
+        if (!isNetworkAvailable()) {
             ((MainApplication) getActivity().getApplication())
                     .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
                 @Override
@@ -109,7 +112,7 @@ public class VenueListFragment extends Fragment {
                 }
             });
         }
-        if (adapter.getItemCount() == 0) {
+        if (adapter.isFetching() && !venueFetching) {
             PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
         }
     }
@@ -136,15 +139,39 @@ public class VenueListFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_my_location:
-                Log.d("TEST", "MY");
+                if (!venueFetching && selectedLocation != MY_LOCATION) {
+                    changeLocation(MY_LOCATION);
+                }
                 return true;
 
             case R.id.action_ny_location:
-                Log.d("TEST", "NY");
+                if (!venueFetching && selectedLocation != CENTER_OF_NY) {
+                    changeLocation(CENTER_OF_NY);
+                }
                 return true;
         }
 
         return false;
+    }
+
+    private void changeLocation(SelectedLocation selectedLocation) {
+        this.selectedLocation = selectedLocation;
+        possibleToFetchMore = true;
+        adapter.clear();
+        adapter.showProgressBar();
+        adapter.notifyDataSetChanged();
+        if (!isNetworkAvailable()) {
+            ((MainApplication) getActivity().getApplication())
+                    .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
+                @Override
+                public void onPostExecute(ArrayList<Venue> venues) {
+                    adapter.appendVenues(venues);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        } else {
+            PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), 0);
+        }
     }
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
@@ -164,10 +191,16 @@ public class VenueListFragment extends Fragment {
     };
 
     private double getLastLatitude() {
+        if (selectedLocation == CENTER_OF_NY) {
+            return centerOfNY.getLatitude();
+        }
         return ((MainActivity) getActivity()).getLastLatitude();
     }
 
     private double getLastLongitude() {
+        if (selectedLocation == CENTER_OF_NY) {
+            return centerOfNY.getLongitude();
+        }
         return ((MainActivity) getActivity()).getLastLongitude();
     }
 
@@ -178,4 +211,7 @@ public class VenueListFragment extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    enum SelectedLocation {
+        MY_LOCATION, CENTER_OF_NY
+    }
 }
