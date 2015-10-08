@@ -9,7 +9,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,6 +43,7 @@ public class VenueListFragment extends Fragment {
     private boolean possibleToFetchMore;
     private final double nearbyVenueRadius = 40_000.0;
     private Location centerOfNY;
+    private Toolbar toolbar;
 
     public static VenueListFragment newInstance() {
         VenueListFragment fragment = new VenueListFragment();
@@ -57,6 +63,8 @@ public class VenueListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_venues, container, false);
         adapter = new VenueAdapter(new ArrayList<Venue>());
+        toolbar = (Toolbar)container.findViewById(R.id.toolbar);
+        setHasOptionsMenu(true);
         initView(v);
         return v;
     }
@@ -116,6 +124,27 @@ public class VenueListFragment extends Fragment {
     public void onPause() {
         super.onPause();
         EventBus.getInstance().unregister(this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_my_location:
+                Log.d("TEST", "MY");
+                return true;
+
+            case R.id.action_ny_location:
+                Log.d("TEST", "NY");
+                return true;
+        }
+
+        return false;
     }
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
