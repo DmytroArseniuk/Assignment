@@ -7,6 +7,7 @@ import android.content.Intent;
 import com.srost_studio.assignment.MainApplication;
 import com.srost_studio.assignment.services.commands.Command;
 import com.srost_studio.assignment.services.commands.FetchVenuesCommand;
+import com.srost_studio.assignment.services.commands.FetchVenuesPhotosCommand;
 
 import java.util.HashMap;
 
@@ -15,6 +16,7 @@ public class PizzaVenueService extends IntentService {
     public static final String COMMAND = "command";
     public static final HashMap<String, Command> commands = new HashMap<String, Command>() {{
         put(FetchVenuesCommand.FETCH_VENUE_COMMAND, new FetchVenuesCommand());
+        put(FetchVenuesPhotosCommand.FETCH_VENUES_PHOTOS_COMMAND, new FetchVenuesPhotosCommand());
     }};
 
     public static void fetchPizzaVenues(Context context, double latitude, double longitude, int offset) {
@@ -25,6 +27,15 @@ public class PizzaVenueService extends IntentService {
         intent.putExtra(FetchVenuesCommand.OFFSET_TAG, offset);
         context.startService(intent);
     }
+
+    public static void fetchVenuesPhotos(Context context, String venueId) {
+        final Intent intent = new Intent(context, PizzaVenueService.class);
+        intent.putExtra(PizzaVenueService.COMMAND, FetchVenuesPhotosCommand.FETCH_VENUES_PHOTOS_COMMAND);
+        intent.putExtra(FetchVenuesPhotosCommand.VENUE_ID, venueId);
+        context.startService(intent);
+    }
+
+
 
     public PizzaVenueService() {
         super("VenueService");

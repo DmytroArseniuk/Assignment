@@ -9,12 +9,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.MainApplication;
 import com.srost_studio.assignment.R;
+import com.srost_studio.assignment.events.PhotosFetchEvent;
+import com.srost_studio.assignment.services.PizzaVenueService;
 import com.srost_studio.assignment.services.VenueService;
 import com.srost_studio.assignment.util.DistanceUtil;
 import com.srost_studio.assignment.util.EventBus;
+import com.srost_studio.assignment.util.PicassoUtil;
 
+import br.com.condesales.models.PhotoItem;
+import br.com.condesales.models.Photos;
 import br.com.condesales.models.Venue;
 
 public class VenueDetailsFragment extends Fragment{
@@ -43,7 +49,6 @@ public class VenueDetailsFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         venueId = getArguments().getString(VENUE_ID);
-
     }
 
     @Override
@@ -54,6 +59,16 @@ public class VenueDetailsFragment extends Fragment{
         rating = (TextView) v.findViewById(R.id.venue_rating);
         photo = (ImageView) v.findViewById(R.id.venue_photo);
         return v;
+    }
+
+    @Subscribe
+    public void accept(PhotosFetchEvent event){
+        if(!event.getPhotos().getItems().isEmpty()){
+            final PhotoItem photoItem = event.getPhotos().getItems().get(0);
+            final String size = "300x500";
+            final String href = photoItem.getPrefix() + size + photoItem.getSuffix();
+            PicassoUtil.setImage(getActivity(), href, R.drawable.stub, photo);
+        }
     }
 
     @Override
@@ -86,5 +101,6 @@ public class VenueDetailsFragment extends Fragment{
         if(venue.getRating() != 0) {
             rating.setText(String.valueOf(venue.getRating()));
         }
+        PizzaVenueService.fetchVenuesPhotos(getActivity(), venueId);
     }
 }

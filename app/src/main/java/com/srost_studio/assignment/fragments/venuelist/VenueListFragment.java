@@ -60,12 +60,13 @@ public class VenueListFragment extends Fragment {
         centerOfNY = new Location("");
         centerOfNY.setLatitude(40.7406699);
         centerOfNY.setLongitude(-73.9886812);
+        adapter = new VenueAdapter(new ArrayList<Venue>(), clickListener);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_venues, container, false);
-        adapter = new VenueAdapter(new ArrayList<Venue>(), clickListener);
+
         adapter.showProgressBar();
         adapter.notifyDataSetChanged();
         setHasOptionsMenu(true);
@@ -77,10 +78,9 @@ public class VenueListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getInstance().register(this);
-        if(getLastLatitude() != 0 && getLastLongitude() != 0) {
+        if(adapter.isEmpty() && getLastLatitude() != 0 && getLastLongitude() != 0) {
             fetchVenues();
         }
-
     }
 
     private void initView(View contextView) {
