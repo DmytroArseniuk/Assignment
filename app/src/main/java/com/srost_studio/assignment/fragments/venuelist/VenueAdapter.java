@@ -10,6 +10,8 @@ import com.srost_studio.assignment.fragments.venuelist.viewholders.ProgressBarVi
 import com.srost_studio.assignment.fragments.venuelist.viewholders.VenueViewHolder;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ViewHolder;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import br.com.condesales.models.Venue;
@@ -84,5 +86,15 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
             hideProgressBar();
         }
         elements.addAll(additionalVenues);
+    }
+
+    public void addVenuesWithSort(List<Venue> additionalVenues) {
+        appendVenues(additionalVenues);
+        Collections.sort(elements, new Comparator<Venue>() {
+            @Override
+            public int compare(Venue venue, Venue t1) {
+                return (int) (venue.getLocation().getDistance() - t1.getLocation().getDistance());
+            }
+        });
     }
 }

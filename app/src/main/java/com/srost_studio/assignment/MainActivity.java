@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onPause() {
         super.onPause();
+        googleApiClient.disconnect();
         EventBus.getInstance().unregister(this);
     }
 

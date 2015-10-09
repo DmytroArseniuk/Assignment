@@ -96,13 +96,13 @@ public class VenueListFragment extends Fragment {
             possibleToFetchMore = false;
             return;
         }
-        adapter.appendVenues(event.getVenues());
+        adapter.addVenuesWithSort(event.getVenues());
         adapter.notifyDataSetChanged();
     }
 
     @Subscribe
     public void accept(LocationUpdatedEvent event) {
-        if(adapter.isEmpty()){
+        if (adapter.isEmpty()) {
             fetchVenues();
         }
     }
@@ -153,7 +153,7 @@ public class VenueListFragment extends Fragment {
         fetchVenues();
     }
 
-    private void fetchVenues(){
+    private void fetchVenues() {
         if (!isNetworkAvailable()) {
             ((MainApplication) getActivity().getApplication())
                     .getVenueService().findVenuesNearLocationAsync(getLastLatitude(), getLastLongitude(), nearbyVenueRadius, new VenueService.VenueRepositoryCallback() {
@@ -164,7 +164,7 @@ public class VenueListFragment extends Fragment {
                 }
             });
         } else {
-            final int adapterSize = adapter.isFetching() ? adapter.getItemCount() : adapter.getItemCount() -1;
+            final int adapterSize = adapter.isFetching() ? adapter.getItemCount() : adapter.getItemCount() - 1;
             PizzaVenueService.fetchPizzaVenues(getActivity(), getLastLatitude(), getLastLongitude(), adapterSize);
         }
     }
