@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ElemenType;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ProgressBarViewHolder;
+import com.srost_studio.assignment.fragments.venuelist.viewholders.VenueItemClickListener;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.VenueViewHolder;
 import com.srost_studio.assignment.fragments.venuelist.viewholders.ViewHolder;
 
@@ -20,9 +21,11 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private List<Venue> elements;
     private boolean fetching;
+    private final VenueItemClickListener clickListener;
 
-    public VenueAdapter(List<Venue> elements) {
+    public VenueAdapter(List<Venue> elements, VenueItemClickListener clickListener) {
         this.elements = elements;
+        this.clickListener = clickListener;
     }
 
     @Override
@@ -30,7 +33,7 @@ public class VenueAdapter extends RecyclerView.Adapter<ViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (ElemenType.values()[viewType]) {
             case ELEMENT:
-                return new VenueViewHolder(inflater.inflate(R.layout.list_item_venue, parent, false));
+                return new VenueViewHolder(inflater.inflate(R.layout.list_item_venue, parent, false), clickListener);
             case PROGRESS_BAR:
                 return new ProgressBarViewHolder(inflater.inflate(R.layout.list_item_progressbar, parent, false));
         }

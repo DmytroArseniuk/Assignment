@@ -33,6 +33,8 @@ public class Venue implements Serializable{
 
 	private boolean dislike;
 
+	private double rating;
+
 	private String url;
 
 	private boolean like;
@@ -109,4 +111,7 @@ public class Venue implements Serializable{
 		this.like = like;
 	}
 
+	public double getRating() {
+		return rating;
+	}
 }

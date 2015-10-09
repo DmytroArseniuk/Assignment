@@ -23,6 +23,7 @@ import com.srost_studio.assignment.R;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
 import com.srost_studio.assignment.events.VenuesFetchFailedEvent;
 import com.srost_studio.assignment.events.VenuesFetchedEvent;
+import com.srost_studio.assignment.fragments.venuelist.viewholders.VenueItemClickListener;
 import com.srost_studio.assignment.services.PizzaVenueService;
 import com.srost_studio.assignment.services.VenueService;
 import com.srost_studio.assignment.util.EventBus;
@@ -64,7 +65,7 @@ public class VenueListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_venues, container, false);
-        adapter = new VenueAdapter(new ArrayList<Venue>());
+        adapter = new VenueAdapter(new ArrayList<Venue>(), clickListener);
         adapter.showProgressBar();
         adapter.notifyDataSetChanged();
         setHasOptionsMenu(true);
@@ -76,6 +77,10 @@ public class VenueListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus.getInstance().register(this);
+        if(getLastLatitude() != 0 && getLastLongitude() != 0) {
+            fetchVenues();
+        }
+
     }
 
     private void initView(View contextView) {
@@ -84,7 +89,15 @@ public class VenueListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         recyclerView.setOnScrollListener(onScrollListener);
+
     }
+
+    private final VenueItemClickListener clickListener = new VenueItemClickListener() {
+        @Override
+        public void onClick(String venueId) {
+            ((MainActivity) getActivity()).openVenueDetails(venueId);
+        }
+    };
 
 
     @Subscribe
@@ -123,6 +136,7 @@ public class VenueListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main, menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

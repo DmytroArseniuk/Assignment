@@ -6,4 +6,9 @@
     <dimen name="list_row_min_height">56dp</dimen>
     <dimen name="list_row_side_padding">16dp</dimen>
     <dimen name="min_toolbar_height">56dp</dimen>
+    <dimen name="regular_screen_left_padding">16dp</dimen>
+    <dimen name="regular_screen_right_padding">8dp</dimen>
+    <dimen name="regular_screen_top_padding">16dp</dimen>
+    <dimen name="title">24sp</dimen>
+    <dimen name="rating_right_margin">16dp</dimen>
 </resources>

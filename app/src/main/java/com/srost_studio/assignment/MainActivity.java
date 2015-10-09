@@ -10,7 +10,9 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.squareup.otto.Subscribe;
 import com.srost_studio.assignment.events.LocationUpdatedEvent;
+import com.srost_studio.assignment.fragments.venuedetails.VenueDetailsFragment;
 import com.srost_studio.assignment.fragments.venuelist.VenueListFragment;
 import com.srost_studio.assignment.util.EventBus;
 
@@ -47,6 +49,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .replace(R.id.container,
                         VenueListFragment.newInstance(),
                         VenueListFragment.FRAGMENT_NAME)
+                .commit();
+
+    }
+
+    public void openVenueDetails(String id) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_fade_out)
+                .replace(R.id.container,
+                        VenueDetailsFragment.newInstance(id),
+                        VenueDetailsFragment.FRAGMENT_NAME)
+                .addToBackStack(VenueDetailsFragment.FRAGMENT_NAME)
                 .commit();
 
     }

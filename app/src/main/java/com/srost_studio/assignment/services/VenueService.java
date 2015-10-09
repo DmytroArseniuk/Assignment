@@ -70,8 +70,29 @@ public class VenueService {
         }.execute();
     }
 
+    public void findVenue(final String id, final FindVenueCallback callback) {
+        new AsyncTask<Void, Void, Venue>(){
+
+            @Override
+            protected Venue doInBackground(Void... voids) {
+                return repository.findVenue(id);
+            }
+
+            @Override
+            protected void onPostExecute(Venue venues) {
+                super.onPostExecute(venues);
+                callback.onPostExecute(venues);
+            }
+        }.execute();
+    }
+
+
     public interface VenueRepositoryCallback {
         void onPostExecute(ArrayList<Venue> venues);
+    }
+
+    public interface FindVenueCallback{
+        void onPostExecute(Venue venue);
     }
 
 
